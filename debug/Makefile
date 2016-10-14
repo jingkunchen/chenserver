@@ -5,7 +5,8 @@ CXX = g++
 
 TARGET = ./chen_server
 
-LDFLAGS +=  -levent
+LDFLAGS +=  -levent \
+            -lpthread
 			
 INCLUDE += ../include \
 

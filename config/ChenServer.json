@@ -1,0 +1,5 @@
+{
+    "ThreadNumber": 3,
+    "ListenPort": 25531,
+    "ListernAddr": "127.0.0.1"
+}

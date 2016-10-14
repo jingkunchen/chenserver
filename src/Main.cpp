@@ -6,12 +6,13 @@
 #include <event.h>
 #include <arpa/inet.h>
 #include <string.h>
-#include <event2/event.h>
 
 struct event_base* base;  
-//struct event* ServerEvent;
-//int iSvrFd;
-
+pthread_mutex_t init_lock;
+pthread_cond_t init_cond;
+int thread_count;
+EVENT_HANDLER *handler;
+ConnQueue Conn_Queue[THREADNUMBER];
 
 int main(int argc, char ** argv)
 {
@@ -36,6 +37,8 @@ int main(int argc, char ** argv)
     }
     event_init();
 
+	thread_pool_init(THREADNUMBER);
+
     ret =chen_server->NewSocket();
     if(ret == RET_FAILURE)
     {
@@ -43,23 +46,6 @@ int main(int argc, char ** argv)
     }
     event_dispatch();
 
-/*
-    sSvrAddr.sin_family = AF_INET;    
-    sSvrAddr.sin_addr.s_addr = inet_addr("127.0.0.1");      
-    sSvrAddr.sin_port = htons(LISTENPORT);
-
-    iSvrFd = socket(AF_INET, SOCK_STREAM, 0);    
-    bind(iSvrFd, (struct sockaddr*)&sSvrAddr, sizeof(sSvrAddr));    
-    listen(iSvrFd, 10); 
-
-    base = event_base_new();
-    struct event evListen;
-
-    event_set(&evListen, iSvrFd, EV_READ|EV_PERSIST, ServerAccept, NULL);  
-
-    event_base_set(base, &evListen); 
-    event_add(&evListen, NULL);  
-    event_base_dispatch(base);  */
     return 0;
 
 }

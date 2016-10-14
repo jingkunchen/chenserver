@@ -1,7 +1,6 @@
 #ifndef __CHEN_SERVER_H__
 #define __CHEN_SERVER_H__
 
-#define PORT 25531
 #define MEM_SIZE 1024
 #define MAXCONNECTIONS 1024
 #define LISTENPORT 25531
@@ -12,7 +11,13 @@ extern "C" void ServerAccept(int iSvrFd, short iEvent, void *arg);
 
 extern "C" void ServerRead(int iCliFd, short iEvent, void *arg);
 
-int SetNonblock(int fd);
+extern "C" void thread_pool_init(int number);
+
+extern "C" void pthread_pub(void *(*func)(void *), void *arg);
+
+extern "C" void *libevent_pub(void *arg);
+
+extern "C" int SetNonblock(int fd);
 
 
 class ChenServer
