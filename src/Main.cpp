@@ -7,22 +7,11 @@
 #include <arpa/inet.h>
 #include <string.h>
 
-struct event_base* base;  
-pthread_mutex_t init_lock;
-pthread_cond_t init_cond;
-int thread_count;
-EVENT_HANDLER *handler;
-ConnQueue Conn_Queue[THREADNUMBER];
-
 int main(int argc, char ** argv)
 {
 	int ret =0;  
-	struct sockaddr_in sSvrAddr;
-	memset(&sSvrAddr, 0, sizeof(sSvrAddr));
 
-	ChenServer* chen_server = NULL;
-
-	chen_server = ChenServer::Instance();
+	ChenServer* chen_server = ChenServer::Instance();
     
     ret = chen_server->Init(argc,argv);
     if(ret == RET_SUCCESS)
@@ -35,17 +24,8 @@ int main(int argc, char ** argv)
     {
     	printf("chen_server->run success\n");
     }
-    event_init();
 
-	thread_pool_init(THREADNUMBER);
-
-    ret =chen_server->NewSocket();
-    if(ret == RET_FAILURE)
-    {
-    	return RET_FAILURE;
-    }
-    event_dispatch();
-
+	ChenServer::Destroy();
     return 0;
 
 }
