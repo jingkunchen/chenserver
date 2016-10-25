@@ -7,17 +7,13 @@
 #define LISTENADDR "127.0.0.1"
 
 
-extern "C" void ServerAccept(int iSvrFd, short iEvent, void *arg);
-
 extern "C" void ServerRead(int iCliFd, short iEvent, void *arg);
-
-extern "C" void thread_pool_init(int number);
 
 extern "C" void pthread_pub(void *(*func)(void *), void *arg);
 
 extern "C" void *libevent_pub(void *arg);
 
-extern "C" int SetNonblock(int fd);
+extern "C" void ServerAccept(int iSvrFd, short iEvent, void *arg);
 
 
 class ChenServer
@@ -29,10 +25,19 @@ public:
 
 	int Run();
 
-	int GetSock();
-
 	int NewSocket();
+	//use fcntl set
+	int SetNonBlock(int fd);
 
+	int SetBlock(int fd);
+
+	//use ioctl set
+	int  SetNonBlocking(int fd);
+
+	int  SetBlocking(int fd);
+
+	void thread_pool_init(int number);
+	
 	static void Destroy();
 
 	virtual ~ChenServer();

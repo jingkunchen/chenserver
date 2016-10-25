@@ -10,17 +10,19 @@
 #include <errno.h>
 #include <netinet/tcp.h>
 #include <pthread.h>
+#include <sys/ioctl.h>
+
 
 
 
 //static
 ChenServer* ChenServer::m_chen_server = NULL;
-extern int thread_count;
-extern struct event_base* base; 
-extern pthread_mutex_t init_lock;
-extern pthread_cond_t init_cond;
-extern EVENT_HANDLER *handler;
-extern ConnQueue Conn_Queue[THREADNUMBER];
+struct event_base* base;  
+pthread_mutex_t i_lock;
+pthread_cond_t i_cond;
+int thread_count;
+EVENT_HANDLER *handler;
+ConnQueue Conn_Queue[THREADNUMBER];
 
 
 ChenServer::ChenServer()
@@ -39,18 +41,29 @@ ChenServer* ChenServer::Instance()
 int ChenServer::Init(int argc, char** argv)
 {
 	printf("ChenServer::init\n");
+	
+	this->thread_pool_init(THREADNUMBER);
 
 	return RET_SUCCESS;
 }
 
 int ChenServer::Run()
 {
+	int ret;
+	
 	printf("ChenServer::run\n");
+
+	ret = this->NewSocket();
+	
+	if(ret == RET_FAILURE)
+    {
+    	return RET_FAILURE;
+    }
 
 	return RET_SUCCESS;
 }
 
-int SetNonblock(int fd)
+int ChenServer::SetNonBlock(int fd)
 {
     int flags;
     
@@ -66,6 +79,42 @@ int SetNonblock(int fd)
 
     return 0;
 }
+
+int ChenServer::SetBlock(int fd)
+{
+    int flags;
+    
+    if ((flags = fcntl(fd, F_GETFL)) == -1) 
+    { 
+        return RET_FAILURE;
+    }
+
+    if (fcntl(fd, F_SETFL, flags & ~O_NONBLOCK) == -1) 
+    {
+        return RET_FAILURE;
+    }
+
+    return RET_SUCCESS;
+}
+
+int ChenServer::SetNonBlocking(int fd)
+{
+	int  nb;
+	
+    nb = 1;
+
+    return ioctl(fd, FIONBIO, &nb);
+}
+
+int ChenServer::SetBlocking(int fd)
+{
+	int  nb;
+	
+    nb = 0;
+
+    return ioctl(fd, FIONBIO, &nb);
+}
+
 
 void handler_control(int iSvrFd, short iEvent, void *arg)
 {
@@ -97,11 +146,11 @@ void *libevent_pub(void *arg)
 {
     EVENT_HANDLER	*me	= (EVENT_HANDLER *)arg;
 
-    pthread_mutex_lock(&init_lock);
+    pthread_mutex_lock(&i_lock);
 	printf("worker_libevent\n");
 	thread_count++;
-    pthread_cond_signal(&init_cond);
-    pthread_mutex_unlock(&init_lock);
+    pthread_cond_signal(&i_cond);
+    pthread_mutex_unlock(&i_lock);
 
     event_base_loop(me->base, 0);
     return NULL;
@@ -120,12 +169,12 @@ void pthread_pub(void *(*func)(void *), void *arg)
     }
 }
 
-void thread_pool_init(int number)
+void ChenServer::thread_pool_init(int number)
 {
 	printf("thread_pool_init\n");
 	int i;
-	pthread_mutex_init(&init_lock, NULL);
-	pthread_cond_init(&init_cond, NULL);
+	pthread_mutex_init(&i_lock, NULL);
+	pthread_cond_init(&i_cond, NULL);
 	thread_count =0;
 
 	handler = (EVENT_HANDLER *)calloc(number,sizeof(EVENT_HANDLER));
@@ -135,6 +184,7 @@ void thread_pool_init(int number)
 		if(pipe(fds))
 		{
 			printf("pipe error\n");
+			exit(-1);
 		}
 		
 		pthread_mutex_init(&Conn_Queue[i].lock, NULL);
@@ -155,10 +205,13 @@ void thread_pool_init(int number)
 		pthread_pub(libevent_pub, &handler[i]);
     }
 	
-	if(thread_count < number)
-	{
-		sleep(1);
-	}
+	pthread_mutex_lock(&i_lock);
+	   while(thread_count < number)
+	   {
+		   pthread_cond_wait(&i_cond, &i_lock);
+	   }
+
+    pthread_mutex_unlock(&i_lock);
 
 }
 
@@ -166,7 +219,6 @@ void thread_pool_init(int number)
 
 int ChenServer::NewSocket()
 {
-    //struct event ServerEvent;
     int iSvrFd;
 
 	struct sockaddr_in sSvrAddr;
@@ -178,7 +230,7 @@ int ChenServer::NewSocket()
         return RET_FAILURE;
     }
 
-    if (SetNonblock(iSvrFd) == RET_FAILURE) 
+    if (this->SetNonBlock(iSvrFd) == RET_FAILURE) 
     {
         return RET_FAILURE;
     }
@@ -205,7 +257,7 @@ int ChenServer::NewSocket()
 	
     base = event_base_new();
     struct event evListen;
-    event_set(&evListen, iSvrFd, EV_READ | EV_PERSIST, ServerAccept, NULL);
+    event_set(&evListen, iSvrFd, EV_READ | EV_PERSIST, ServerAccept, this);
     event_base_set(base, &evListen); 
     if (event_add(&evListen, NULL) == RET_FAILURE)
 	{
@@ -219,6 +271,7 @@ int ChenServer::NewSocket()
 
 void ServerAccept(int iSvrFd, short iEvent, void *arg)
 {
+	ChenServer* detailJob = static_cast<ChenServer*>(arg);
 	int iCliFd; 
 	int yes = 1;  
     struct sockaddr_in sCliAddr; 
@@ -231,7 +284,7 @@ void ServerAccept(int iSvrFd, short iEvent, void *arg)
     	printf("accept(): can not accept client connection\n");
     	return;
     }
-    if(SetNonblock(iCliFd) == RET_FAILURE)
+    if(detailJob->SetNonBlock(iCliFd) == RET_FAILURE)
     {
     	close(iCliFd);
     	return;
@@ -285,9 +338,16 @@ void ServerRead(int iCliFd, short iEvent, void *arg)
 
 void ChenServer::Destroy()
 {
+	if(NULL != m_chen_server)
+	{
+		delete m_chen_server;
+		m_chen_server = NULL;
+	}
+
 	exit(0);
 }
 
 ChenServer::~ChenServer()
 {
+	
 }

@@ -3,11 +3,16 @@
 #include <pthread.h>
 #include <event.h>
 #include <queue>
-#include <netinet/tcp.h>
+#include <netinet/tcp.h>
+#include <sys/time.h>
 
 const int RET_SUCCESS = 0;
 const int RET_FAILURE = 1;
 const int THREADNUMBER = 2;
+
+#define ChenGettimeofday(tp)  (void) gettimeofday(tp, NULL);
+#define ChenMsleep(ms)        (void) usleep(ms * 1000)
+#define ChenSleep(s)          (void) sleep(s)
 
 typedef struct 
 {

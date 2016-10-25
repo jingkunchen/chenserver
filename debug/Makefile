@@ -6,7 +6,7 @@ CXX = g++
 TARGET = ./chen_server
 
 LDFLAGS +=  -levent \
-            -lpthread
+            -lpthread 
 			
 INCLUDE += ../include \
 
@@ -14,7 +14,8 @@ OPTIONS = -g -Wall
 
 
 OBJS =  ./Main.o \
-	./ChenServer.o
+	./ChenServer.o \
+	./ChenLock.o
 
 										 
 target : $(TARGET)
