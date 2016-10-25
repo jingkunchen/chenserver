@@ -8,14 +8,11 @@
 #include <string.h>
 #include "ChenLock.h"
 
-<<<<<<< HEAD
 
 using namespace std;
 
 ChenMutex g_Lock;
 
-=======
->>>>>>> cf378fbf8fb31507bef21f0b403c35c6d53955dd
 int main(int argc, char ** argv)
 {
 	int ret =0;  

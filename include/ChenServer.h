@@ -36,12 +36,6 @@ public:
 
 	int  SetBlocking(int fd);
 
-<<<<<<< HEAD
-=======
-	
-	int SetNonblock(int fd);
-
->>>>>>> cf378fbf8fb31507bef21f0b403c35c6d53955dd
 	void thread_pool_init(int number);
 	
 	static void Destroy();
