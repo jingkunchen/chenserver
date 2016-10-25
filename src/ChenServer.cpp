@@ -63,7 +63,11 @@ int ChenServer::Run()
 	return RET_SUCCESS;
 }
 
+<<<<<<< HEAD
 int ChenServer::SetNonBlock(int fd)
+=======
+int ChenServer::SetNonblock(int fd)
+>>>>>>> cf378fbf8fb31507bef21f0b403c35c6d53955dd
 {
     int flags;
     
@@ -230,7 +234,11 @@ int ChenServer::NewSocket()
         return RET_FAILURE;
     }
 
+<<<<<<< HEAD
     if (this->SetNonBlock(iSvrFd) == RET_FAILURE) 
+=======
+    if (this->SetNonblock(iSvrFd) == RET_FAILURE) 
+>>>>>>> cf378fbf8fb31507bef21f0b403c35c6d53955dd
     {
         return RET_FAILURE;
     }
@@ -284,7 +292,11 @@ void ServerAccept(int iSvrFd, short iEvent, void *arg)
     	printf("accept(): can not accept client connection\n");
     	return;
     }
+<<<<<<< HEAD
     if(detailJob->SetNonBlock(iCliFd) == RET_FAILURE)
+=======
+    if(detailJob->SetNonblock(iCliFd) == RET_FAILURE)
+>>>>>>> cf378fbf8fb31507bef21f0b403c35c6d53955dd
     {
     	close(iCliFd);
     	return;
