@@ -30,5 +30,3 @@ ChenLock::~ChenLock()
 {
 	m_lock.Unlock();
 }
-
-

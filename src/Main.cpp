@@ -7,11 +7,9 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include "ChenLock.h"
-
+#include "ChenSpinLock.h"
 
 using namespace std;
-
-ChenMutex g_Lock;
 
 int main(int argc, char ** argv)
 {

@@ -2,10 +2,10 @@
 #include <unistd.h>
 #include <pthread.h>
 
-
 using namespace std;
 
-ChenMutex g_Lock;
+ChenSpinMutex g_Lock;
+
 
 void * StartThread(void *pParam)
 {
@@ -15,7 +15,7 @@ void * StartThread(void *pParam)
 		return (void *)1;
 	}
 	
-	ChenLock lock(g_Lock);
+	ChenSpinLock lock(g_Lock);
 
 	for( int i = 0; i < 5; i++ )
 	{
@@ -54,8 +54,6 @@ int main(int argc, char* argv[])
 	pthread_attr_destroy(&attr1);
 	pthread_attr_destroy(&attr2);
 
-	int iWait;
-	cin>>iWait;
 
 	return 0;
 }
