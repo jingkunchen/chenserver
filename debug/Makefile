@@ -16,7 +16,8 @@ OPTIONS = -g -Wall
 OBJS =  ./Main.o \
 	./ChenServer.o \
 	./ChenLock.o \
-	./ChenSpinLock.o
+	./ChenSpinLock.o \
+	./ChenUtil.o
 
 										 
 target : $(TARGET)
