@@ -17,7 +17,8 @@ OBJS =  ./Main.o \
 	./ChenServer.o \
 	./ChenLock.o \
 	./ChenSpinLock.o \
-	./ChenUtil.o
+	./ChenUtil.o \
+	./ChenHandler.o
 
 										 
 target : $(TARGET)

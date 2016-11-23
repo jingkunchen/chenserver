@@ -1,5 +1,6 @@
 #include "ChenServer.h"
 #include "ChenCommon.h"
+#include "ChenHandler.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <event.h>
@@ -136,7 +137,9 @@ void handler_control(int iSvrFd, short iEvent, void *arg)
 	printf("arg:%p\n",arg);
 
 	struct event *pEvRead = new event;  
-	event_set(pEvRead, iCliFd, EV_READ|EV_PERSIST, ServerRead, pEvRead);
+	//event_set(pEvRead, iCliFd, EV_READ|EV_PERSIST, ServerRead, pEvRead);
+	event_set(pEvRead, iCliFd, EV_READ|EV_PERSIST, accept_request, pEvRead);
+	
 	event_base_set(base, pEvRead);
 	event_add(pEvRead, NULL);
 
@@ -315,6 +318,7 @@ void ServerAccept(int iSvrFd, short iEvent, void *arg)
 	}
 
 }
+
 void ServerRead(int iCliFd, short iEvent, void *arg)
 {
 	int iLen;  
@@ -333,8 +337,6 @@ void ServerRead(int iCliFd, short iEvent, void *arg)
     buf[iLen] = 0;  
     printf("Client Info:%s\n",buf);  
 }
-
-
 
 void ChenServer::Destroy()
 {

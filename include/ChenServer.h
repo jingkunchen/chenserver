@@ -6,7 +6,6 @@
 #define LISTENPORT 25531
 #define LISTENADDR "127.0.0.1"
 
-
 extern "C" void ServerRead(int iCliFd, short iEvent, void *arg);
 
 extern "C" void pthread_pub(void *(*func)(void *), void *arg);
