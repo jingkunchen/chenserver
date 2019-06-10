@@ -4,7 +4,7 @@ http://github.com/snowdroper/chenserver
 TCP server, 
     Written in C++, 
     That serves use libevent and threadpool,
-    For use in developing network applications,
+    For using in developing network applications,
     Asynchronous multi thread high concurrency framework.
 
 Motivation:
